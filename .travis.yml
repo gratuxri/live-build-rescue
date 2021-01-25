@@ -1,6 +1,9 @@
 dist: focal
 language: minimal
 
+git:
+  clone: false
+
 before_install:
   - sudo add-apt-repository -y ppa:live-build/ppa
   - sudo apt-get -q update
