@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get -y install live-build debian-archive-keyring debian-keyring
 
 addons:
-  artifacts: true
+  artifacts: 
     paths:
     - /var/www/html/initrd.img
     - /var/www/html/vmlinuz
