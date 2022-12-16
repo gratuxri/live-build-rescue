@@ -49,7 +49,7 @@ IP_OF_FQDN=`dig $FQDN +short`
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
-lb config -d bookworm --chroot-filesystem squashfs --apt-indices false --cache-packages false --config git://code.x2go.org/live-build-x2go.git::feature/bookworm-fvwm --archive-areas "main contrib non-free" --apt-recommends false --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security false  --initsystem systemd  -b netboot --bootappend-live aufs vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet keep_bootcon toram live-config live-config.timezone=Europe/Berlin
+lb config -d bookworm --chroot-filesystem squashfs --apt-indices false --cache-packages false --config https://gitlab.x2go.org/x2go/live-build-x2go.git::feature/bookworm-fvwm --archive-areas "main contrib non-free" --apt-recommends false --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security false  --initsystem systemd -b netboot --bootappend-live vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet keep_bootcon toram live-config.timezone=Europe/Berlin
 lb build
 cd `dirname $DIR`
 ln -nfs `basename $DIR` lb-x2go
@@ -62,7 +62,7 @@ YOURHW=myhw
 cat <<EOF>$YOURHW
 #!ipxe
 dhcp
-kernel http://$FQDN/vmlinuz boot=live components fetch=http://$IP_OF_FQDN/filesystem.squashfs noswap aufs rd.luks=0 rd.lvm=0 rd.md=0 rd.dm=0 vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 keep_bootcon sysrq_always_enabled rd.driver.pre=loop rd.noverifyssl rd.skipfsck rd.live.overlay.check rd.live.overlay.reset rd.live.ram log_buf_len=1M quickreboot silent splash toram lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled initrd=initrd.img rootwait=120 live-config
+kernel http://$FQDN/vmlinuz boot=live components fetch=http://$IP_OF_FQDN/filesystem.squashfs noswap vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 keep_bootcon sysrq_always_enabled log_buf_len=1M quickreboot silent splash toram lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet initrd=initrd.img rootwait=120
 initrd http://$FQDN/initrd.img
 boot
 EOF
