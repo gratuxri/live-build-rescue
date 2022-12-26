@@ -1,1 +1,3 @@
-x2goclient freerdp2-x11 tigervnc-viewer
+x2goclient
+freerdp2-x11
+libnss-mdns
