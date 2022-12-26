@@ -1,3 +1,1 @@
-x2goclient
-freerdp2-x11
-libnss-mdns
+x2goclient freerdp2-x11 libnss-mdns
