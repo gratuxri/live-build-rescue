@@ -1,0 +1,50 @@
+# IPv6-only netboot setup:
+cat <<'EOF'>>/etc/radvd.conf
+interface vmbr7 {
+  AdvSendAdvert on;
+  AdvManagedFlag on;
+  AdvOtherConfigFlag on;
+  MinRtrAdvInterval 3;
+  MaxRtrAdvInterval 10;
+  prefix ::/64 {
+    AdvOnLink on;
+    AdvRouterAddr on;
+  };
+};
+EOF
+
+cat <<'EOF'>>/etc/dhcp/dhcpd6.conf
+authoritative;
+option dhcp6.bootfile-url code 59 = string;
+option dhcp6.client-arch-type code 61 = array of unsigned integer 16;
+option dhcp6.vendor-class code 16 = {integer 32, integer 16, string};
+class "HTTPClient" {
+        match substring (option dhcp6.vendor-class, 6, 21);
+        }
+subclass "HTTPClient" "HTTPClient:Arch:00016" {
+        option dhcp6.bootfile-url "http://[2001:db8::]/snponly.efi";
+        option dhcp6.vendor-class 0 10 "HTTPClient";
+}
+
+if option dhcp6.client-arch-type = 00:07 {
+        option dhcp6.bootfile-url "tftp://[2001:db8::]/snponly.efi";
+}   else {
+        # Support a hypothetical BIOS system that can PXE boot over IPv6
+        option dhcp6.bootfile-url "tftp://[2001:db8::]/undionly.kpxe";
+}
+option dhcp6.name-servers 2001:db8::;
+option dhcp6.domain-search "example.com";
+host ipv6test { hardware ethernet 00:00:5E:00:53:FF; fixed-address6 2001:db8::1; }
+subnet6 2001:db8::/64 {
+range6 2001:db8::2 2001:db8::ffff:ffff:ffff:ffff;
+}
+
+EOF
+
+cat <<'EOF'>x2go.ipxe
+#!ipxe
+ifconf -c ipv6
+kernel http://[2001:db8::]/vmlinuz boot=live components fetch=http://[2001:db8::]/filesystem.squashfs noswap vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 keep_bootcon sysrq_always_enabled log_buf_len=1M quickreboot silent splash toram lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet initrd=initrd.img rootwait=120 live-config
+initrd http://[2001:db8::]/initrd.img
+boot
+EOF
